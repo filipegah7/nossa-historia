@@ -1,0 +1,611 @@
+/* Plano visual: papel de carta em creme, rosa queimado e vinho, com pequenos detalhes
+   dourados. Tipografia serifada nos títulos e profundidade em 3D nos objetos que ela toca:
+   coração, envelope, fotos e post-its. A história das fotos é ligada por um fio dourado. */
+:root {
+  --rosa: #b83a56;
+  --rosa-hover: #9d2f47;
+  --rosa-suave: #f4dce2;
+  --rosa-linha: #e8bcc8;
+  --vinho: #4a1f30;
+  --vinho-profundo: #5c1a30;
+  --detalhe: #86556a;
+  --ouro: #a9803f;
+  --ouro-claro: #d9bf8c;
+  --papel: #fffdfb;
+  --fundo: #fbf5f0;
+  --sombra: 0 1px 2px rgba(74, 31, 48, .08), 0 8px 24px rgba(74, 31, 48, .1);
+  --sombra-forte: 0 2px 4px rgba(74, 31, 48, .1), 0 18px 40px rgba(74, 31, 48, .18);
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans: "Figtree", system-ui, sans-serif;
+  --suave: cubic-bezier(.2, .8, .2, 1);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+/* Textura de papel muito sutil sobre o creme */
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  background-color: var(--fundo);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .29 0 0 0 0 .12 0 0 0 0 .19 0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  color: var(--vinho);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+section {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  text-align: center;
+}
+section.ativa { display: flex; animation: surgir .9s var(--suave) both; }
+@keyframes surgir {
+  from { opacity: 0; transform: perspective(900px) rotateX(10deg) translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+h1, h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--rosa);
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  margin: 0 0 16px;
+}
+h1 { font-size: clamp(2.4rem, 7vw, 3.5rem); max-width: 14ch; }
+h2 { font-size: clamp(2rem, 6vw, 2.7rem); font-weight: 600; color: var(--vinho); }
+/* Um fio dourado curto separa o título do conteúdo */
+h2::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 1px;
+  margin: 16px auto 0;
+  background: var(--ouro);
+}
+p { margin: 0 0 12px; max-width: 60ch; }
+
+/* Botões com relevo: afundam ao toque */
+button {
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: .01em;
+  background: var(--rosa);
+  color: #fff;
+  border: 2px solid var(--rosa);
+  border-radius: 999px;
+  padding: 12px 30px;
+  margin: 8px 6px 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--rosa-hover);
+  transition: background .2s ease, translate .12s ease, box-shadow .12s ease;
+}
+button:hover { background: var(--rosa-hover); border-color: var(--rosa-hover); translate: 0 -1px; }
+button:active { translate: 0 3px; box-shadow: 0 1px 0 var(--rosa-hover); }
+button.secundario { background: transparent; color: var(--rosa); box-shadow: 0 4px 0 var(--rosa-linha); }
+button.secundario:hover { background: var(--rosa-suave); }
+button.secundario:active { box-shadow: 0 1px 0 var(--rosa-linha); }
+
+:focus-visible { outline: 3px solid var(--ouro); outline-offset: 3px; }
+
+input {
+  font: inherit;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 2px solid var(--rosa-linha);
+  background: var(--papel);
+  width: min(260px, 80%);
+}
+
+/* Fundo: corações pequenos que sobem devagar */
+#fundo-flutuante {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.flutuante {
+  position: absolute;
+  bottom: -40px;
+  opacity: .2;
+  animation: subir linear infinite;
+}
+.flutuante svg { display: block; }
+@keyframes subir {
+  to { transform: translate(var(--x), -115vh) rotate(var(--r)); }
+}
+
+/* Coração 3D da abertura: camadas empilhadas girando */
+.cena-3d {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 34px;
+  perspective: 900px;
+  animation: flutuar 4s ease-in-out infinite alternate;
+}
+.cena-3d::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -22px;
+  width: 90px;
+  height: 14px;
+  margin-left: -45px;
+  background: radial-gradient(ellipse, rgba(74, 31, 48, .28), transparent 70%);
+  animation: sombra-chao 4s ease-in-out infinite alternate;
+}
+.coracao-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: giro 9s linear infinite;
+}
+.coracao-3d .camada { position: absolute; inset: 0; }
+.coracao-3d svg { display: block; width: 100%; height: 100%; }
+@keyframes giro {
+  from { transform: rotateX(-12deg) rotateY(0deg); }
+  to { transform: rotateX(-12deg) rotateY(360deg); }
+}
+@keyframes flutuar {
+  from { translate: 0 -8px; }
+  to { translate: 0 8px; }
+}
+@keyframes sombra-chao {
+  from { transform: scale(1.1); opacity: .9; }
+  to { transform: scale(.8); opacity: .6; }
+}
+
+/* Cards da tela do contador */
+.cartao {
+  background: var(--papel);
+  border: 1px solid rgba(169, 128, 63, .3);
+  border-radius: 10px;
+  padding: 22px;
+  max-width: 420px;
+  width: 100%;
+  margin: 14px 0;
+  box-shadow: var(--sombra);
+}
+
+.numero {
+  font-family: var(--serif);
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--rosa);
+}
+.numero.tick { animation: tick .45s var(--suave); }
+@keyframes tick {
+  from { translate: 0 -10px; opacity: .25; }
+  to { translate: 0 0; opacity: 1; }
+}
+
+.grade-contador {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.grade-contador > div {
+  background: var(--papel);
+  border: 1px solid rgba(169, 128, 63, .3);
+  border-radius: 10px;
+  padding: 14px 18px;
+  min-width: 96px;
+  box-shadow: var(--sombra);
+}
+
+/* História em fotos: um fio dourado liga os momentos, do começo até hoje */
+#cartoes { position: relative; width: 100%; gap: 40px; margin-top: 12px; }
+#cartoes::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: -8px;
+  bottom: -8px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--ouro-claro) 5%, var(--ouro-claro) 95%, transparent);
+}
+#cartoes::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: -22px;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--ouro);
+  box-shadow: 0 0 0 5px var(--fundo), 0 0 0 6px var(--ouro-claro);
+}
+
+/* Cards de fotos: inclinam com o toque e ganham brilho, e entram ao rolar */
+#cartoes .cartao {
+  --base: 0deg;
+  --rx: 0deg;
+  --ry: 0deg;
+  position: relative;
+  z-index: 1;
+  max-width: 340px;
+  padding: 14px 14px 28px;
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(74, 31, 48, .08), 0 14px 34px rgba(74, 31, 48, .12), inset 0 0 0 1px rgba(169, 128, 63, .22);
+  margin: 0;
+  opacity: 0;
+  translate: 0 56px;
+  transform: perspective(900px) rotate(var(--base)) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform .2s ease-out, translate .9s var(--suave), opacity .9s ease, box-shadow .3s ease;
+  will-change: transform;
+}
+/* Marco dourado de cada momento, sobre o fio */
+#cartoes .cartao::before {
+  content: "";
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+  background: var(--ouro);
+  box-shadow: 0 0 0 5px var(--fundo);
+}
+#cartoes .cartao.visivel { opacity: 1; translate: 0 0; }
+#cartoes .cartao.inclinado { box-shadow: var(--sombra-forte), inset 0 0 0 1px rgba(169, 128, 63, .3); }
+#cartoes .cartao:nth-child(odd) { --base: -1.2deg; }
+#cartoes .cartao:nth-child(even) { --base: 1deg; }
+#cartoes .cartao::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .55), transparent 55%);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+#cartoes .cartao.inclinado::after { opacity: 1; }
+#cartoes .cartao img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 1px;
+  margin: 0 0 18px;
+  filter: sepia(.06) saturate(1.04);
+  outline: 1px solid rgba(74, 31, 48, .08);
+}
+#cartoes .cartao p { margin: 0 auto 14px; font-size: 1.05rem; }
+
+.versiculo {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  color: var(--detalhe);
+  border-top: 1px solid var(--ouro-claro);
+  margin: 14px 0 0 !important;
+  padding-top: 14px;
+}
+.versiculo small {
+  display: block;
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: .85rem;
+  letter-spacing: .02em;
+  margin-top: 6px;
+}
+
+/* Único momento com fonte de caligrafia: o título final */
+#final h1 {
+  font-family: "Great Vibes", cursive;
+  font-weight: 400;
+  font-size: clamp(3.2rem, 14vw, 4.8rem);
+  max-width: none;
+  letter-spacing: 0;
+  text-shadow: 0 6px 24px rgba(184, 58, 86, .22);
+}
+
+/* Envelope 3D: a aba vira e a carta sobe */
+.envelope {
+  position: relative;
+  width: 280px;
+  height: 190px;
+  margin: 120px 0 14px;
+  cursor: pointer;
+  perspective: 900px;
+  animation: flutuar 3.2s ease-in-out infinite alternate;
+  transition: scale .25s ease;
+}
+.envelope:hover { scale: 1.03; }
+.env-corpo {
+  position: absolute;
+  inset: 0;
+  background: #e6b7c4;
+  border-radius: 8px;
+  box-shadow: var(--sombra-forte);
+}
+.env-papel {
+  position: absolute;
+  z-index: 1;
+  left: 9%;
+  right: 9%;
+  top: 10%;
+  height: 82%;
+  border-radius: 3px;
+  background: repeating-linear-gradient(var(--papel) 0 16px, #f1e4dc 16px 17px);
+  box-shadow: 0 1px 3px rgba(74, 31, 48, .18);
+  transition: transform 1s .5s var(--suave);
+}
+.env-frente {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: #d899ac;
+  border-radius: 8px;
+  clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+}
+.env-aba {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56%;
+  background: #c97f97;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 14%;
+  transition: transform .8s ease, z-index 0s .4s;
+}
+/* Lacre de cera vinho com coração dourado */
+.env-aba .icone {
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  border-radius: 50%;
+  background: var(--vinho-profundo);
+  color: var(--ouro-claro);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(217, 191, 140, .4);
+}
+.envelope.aberto { animation: none; }
+.envelope.aberto .env-aba { transform: rotateX(180deg); z-index: 0; }
+.envelope.aberto .env-papel { transform: translateY(-64%); }
+
+.carta {
+  background: var(--papel);
+  border: 1px solid rgba(169, 128, 63, .25);
+  border-radius: 3px;
+  padding: 34px 30px;
+  max-width: 520px;
+  min-height: 140px;
+  text-align: left;
+  white-space: pre-wrap;
+  box-shadow: var(--sombra-forte);
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  line-height: 1.65;
+  animation: surgir .8s var(--suave) both;
+}
+
+/* Mural de motivos: cartões que viram em 3D para mostrar a foto */
+.mural {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 18px;
+  width: 100%;
+  max-width: 760px;
+}
+.postit {
+  aspect-ratio: 4 / 5;
+  perspective: 700px;
+  cursor: pointer;
+}
+.postit:nth-child(3n) { --cor: var(--rosa-suave); rotate: -2deg; }
+.postit:nth-child(3n+1) { --cor: #ece0e8; rotate: 1.5deg; }
+.postit .miolo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .8s cubic-bezier(.3, 1.3, .4, 1);
+}
+.postit:hover:not(.virado) .miolo { transform: rotateY(-14deg) translateY(-3px); }
+.postit.virado .miolo { transform: rotateY(180deg); }
+.postit .face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  border-radius: 3px;
+  background: var(--cor, #f4e8dc);
+  box-shadow: 0 8px 18px rgba(74, 31, 48, .14), inset 0 0 0 1px rgba(169, 128, 63, .3);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  font-family: var(--serif);
+  font-size: 1.12rem;
+  line-height: 1.3;
+}
+.postit .verso {
+  transform: rotateY(180deg);
+  padding: 0;
+  overflow: hidden;
+  align-items: flex-end;
+  background: var(--vinho);
+}
+.postit .verso img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(.06) saturate(1.04);
+}
+.postit .legenda {
+  position: relative;
+  width: 100%;
+  padding: 40px 12px 12px;
+  background: linear-gradient(transparent, rgba(46, 14, 27, .86));
+  color: #fff;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+/* Motivo sorteado: foto grande que entra girando em 3D */
+#motivo-sorteado { min-height: 8px; perspective: 900px; }
+.sorteado {
+  margin: 18px auto 8px;
+  max-width: 270px;
+  padding: 12px 12px 20px;
+  background: var(--papel);
+  border-radius: 3px;
+  box-shadow: var(--sombra-forte), inset 0 0 0 1px rgba(169, 128, 63, .22);
+  rotate: -1.5deg;
+  animation: entrar-sorteado .8s var(--suave) both;
+}
+.sorteado img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 1px;
+  filter: sepia(.06) saturate(1.04);
+}
+.sorteado figcaption {
+  margin-top: 14px;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  line-height: 1.3;
+}
+@keyframes entrar-sorteado {
+  from { opacity: 0; transform: rotateY(-70deg) scale(.85); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Pétalas: o movimento de destaque ao abrir a carta e na tela final */
+.petala {
+  position: fixed;
+  top: -40px;
+  pointer-events: none;
+  z-index: 5;
+  animation: cair linear forwards;
+}
+@keyframes cair {
+  to { transform: translate(var(--deriva), 110vh) rotate(var(--giro)); opacity: .7; }
+}
+
+/* Ícones SVG: desenhados com a cor do texto ao redor */
+.icone {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icone.preenchido { fill: currentColor; stroke: none; }
+.titulo-coracao { width: .7em; height: .7em; color: var(--rosa); vertical-align: .15em; }
+.postit .icone { width: 26px; height: 26px; color: var(--rosa); }
+.petala svg { display: block; }
+
+/* Botão de música: círculo pequeno só com o ícone, fora do caminho do conteúdo */
+#musica-botao {
+  position: fixed;
+  bottom: 14px;
+  right: 14px;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--papel);
+  color: var(--rosa);
+  box-shadow: var(--sombra);
+}
+#musica-botao:active { box-shadow: var(--sombra); }
+#musica-botao .icone { width: 18px; height: 18px; vertical-align: middle; }
+
+/* Botão de voltar: canto superior esquerdo, some na primeira tela */
+#voltar-botao {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--papel);
+  color: var(--rosa);
+  box-shadow: var(--sombra);
+}
+#voltar-botao[hidden] { display: none; }
+#voltar-botao .icone { width: 18px; height: 18px; vertical-align: middle; }
+
+.dica { font-size: .9rem; color: var(--detalhe); }
+.mensagem-erro { color: #b03a2e; min-height: 1.2em; font-size: .9rem; }
+
+/* Tablet: cards um pouco maiores */
+@media (min-width: 600px) {
+  #cartoes .cartao { max-width: 380px; }
+  .sorteado { max-width: 300px; }
+}
+
+/* Desktop: cada momento vira uma página aberta, com foto de um lado e texto do outro */
+@media (min-width: 820px) {
+  #cartoes .cartao {
+    max-width: 780px;
+    display: grid;
+    grid-template-columns: 5fr 6fr;
+    column-gap: 36px;
+    align-content: center;
+    text-align: left;
+    padding: 18px;
+  }
+  #cartoes .cartao img { grid-row: 1 / span 2; margin: 0; }
+  #cartoes .cartao p { grid-column: 2; align-self: end; margin: 0 0 16px; font-size: 1.2rem; }
+  #cartoes .cartao .versiculo { align-self: start; margin: 0 !important; font-size: 1.3rem; }
+  #cartoes .cartao:nth-child(even) { grid-template-columns: 6fr 5fr; }
+  #cartoes .cartao:nth-child(even) img { grid-column: 2; }
+  #cartoes .cartao:nth-child(even) p,
+  #cartoes .cartao:nth-child(even) .versiculo { grid-column: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .petala, #fundo-flutuante { display: none; }
+  #cartoes .cartao { opacity: 1; translate: 0 0; }
+}

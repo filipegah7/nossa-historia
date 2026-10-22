@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nosso primeiro ano</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Figtree:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="fundo-flutuante" aria-hidden="true"></div>
+  <button id="voltar-botao" class="secundario" aria-label="Voltar para a tela anterior" onclick="voltar()" hidden>
+    <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+  </button>
+  <audio id="musica" loop src="musica.mp3"></audio>
+  <button id="musica-botao" class="secundario" onclick="alternarMusica()"></button>
+
+  <!-- 1. Abertura -->
+  <section id="abertura" class="ativa">
+    <div class="cena-3d" aria-hidden="true"><div id="coracao-3d" class="coracao-3d"></div></div>
+    <h1>Você está pronta para a nossa história, amor?</h1>
+    <p>Preparei algo especial para o nosso primeiro ano.</p>
+    <button onclick="irPara('envelope'); tocarMusica();">Claro que sim <svg class="icone preenchido" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.1 5 6.5 5c2 0 3.6 1.1 4.5 2.6C11.9 6.1 13.5 5 15.5 5c3.4 0 5.5 3.3 5 6.8C18.5 16.4 12 21 12 21z"/></svg></button>
+  </section>
+
+  <!-- 2. Carta -->
+  <section id="envelope">
+    <h2>Abra a sua carta</h2>
+    <div class="envelope" role="button" tabindex="0" aria-label="Abrir a carta" onclick="abrirCarta()" onkeydown="if (event.key === 'Enter') abrirCarta()">
+      <div class="env-corpo"></div>
+      <div class="env-papel"></div>
+      <div class="env-frente"></div>
+      <div class="env-aba"><svg class="icone preenchido" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.1 5 6.5 5c2 0 3.6 1.1 4.5 2.6C11.9 6.1 13.5 5 15.5 5c3.4 0 5.5 3.3 5 6.8C18.5 16.4 12 21 12 21z"/></svg></div>
+    </div>
+    <p class="dica">Toque no envelope para abrir.</p>
+    <div id="carta-area" style="display:none; margin-top:20px;">
+      <div class="carta" id="carta-texto"></div>
+      <button onclick="irPara('contador')" style="margin-top:16px;">Continuar</button>
+    </div>
+  </section>
+
+  <!-- 3. Contador -->
+  <section id="contador">
+    <h2>Quanto tempo juntos</h2>
+    <div class="grade-contador">
+      <div><div class="numero" id="c-anos">0</div>anos</div>
+      <div><div class="numero" id="c-meses">0</div>meses</div>
+      <div><div class="numero" id="c-dias">0</div>dias</div>
+      <div><div class="numero" id="c-horas">0</div>horas</div>
+      <div><div class="numero" id="c-minutos">0</div>minutos</div>
+      <div><div class="numero" id="c-segundos">0</div>segundos</div>
+    </div>
+    <p>Já são <strong id="c-total">0</strong> dias ao seu lado.</p>
+    <div class="cartao">
+      <p>Próximo mesversário em</p>
+      <div class="numero" id="proximo-mes">--</div>
+      <p class="dica" id="proximo-data"></p>
+    </div>
+    <div class="cartao">
+      <p>Sorrisos que você já me arrancou <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c.9 1.2 2.1 1.8 3.5 1.8s2.6-.6 3.5-1.8"/><circle cx="9" cy="10" r=".6" class="preenchido"/><circle cx="15" cy="10" r=".6" class="preenchido"/></svg></p>
+      <div class="numero" id="c-sorrisos">0</div>
+      <p class="dica">e continua contando...</p>
+    </div>
+    <button onclick="irPara('linha')">Ver nossa história</button>
+  </section>
+
+  <!-- 4. Cards de fotos -->
+  <section id="linha">
+    <h2>Nossa história</h2>
+    <p class="dica">Role para ver cada momento.</p>
+    <div id="cartoes" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+    <button onclick="irPara('motivos')" style="margin-top:12px;">Próximo</button>
+  </section>
+
+  <!-- 5. Mural de motivos -->
+  <section id="motivos">
+    <h2>Motivos pelos quais eu te amo</h2>
+    <p class="dica">Toque em um post-it para revelar.</p>
+    <div class="mural" id="mural"></div>
+    <button onclick="sortearMotivo()" style="margin-top:16px;">Sortear um motivo <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r=".8" class="preenchido"/><circle cx="12" cy="12" r=".8" class="preenchido"/><circle cx="16" cy="16" r=".8" class="preenchido"/></svg></button>
+    <div id="motivo-sorteado" aria-live="polite"></div>
+    <button onclick="irPara('pergunta')">Continuar</button>
+  </section>
+
+  <!-- 6. Pergunta final -->
+  <section id="pergunta">
+    <h2 id="pergunta-texto">Quer continuar essa história comigo?</h2>
+    <div>
+      <button onclick="irPara('final')">Sim, com certeza <svg class="icone preenchido" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.1 5 6.5 5c2 0 3.6 1.1 4.5 2.6C11.9 6.1 13.5 5 15.5 5c3.4 0 5.5 3.3 5 6.8C18.5 16.4 12 21 12 21z"/></svg></button>
+      <button id="botao-nao" class="secundario" onmouseover="fugir(this)" onclick="fugir(this)">Não</button>
+    </div>
+  </section>
+
+  <!-- 7. Final -->
+  <section id="final">
+    <h1>Um ano de nós <svg class="icone preenchido titulo-coracao" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.1 5 6.5 5c2 0 3.6 1.1 4.5 2.6C11.9 6.1 13.5 5 15.5 5c3.4 0 5.5 3.3 5 6.8C18.5 16.4 12 21 12 21z"/></svg></h1>
+    <p>Cada dia com você foi um presente. Feliz 1 ano, <span id="final-nome"></span>.</p>
+    <div class="cartao">
+      <div class="numero" id="final-dias">0</div>
+      <p>dias juntos até agora</p>
+    </div>
+    <button onclick="baixarPagina()">Salvar esta página <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 3v5h8V3"/><path d="M7 21v-7h10v7"/></svg></button>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
