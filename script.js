@@ -324,24 +324,3 @@ function fugir(botao) {
 
 // ====== Final ======
 document.getElementById("final-nome").textContent = CONFIG.nomeDela;
-
-// Salva uma cópia da página como um único arquivo HTML, com CSS e JS embutidos
-async function baixarPagina() {
-  try {
-    const [css, js] = await Promise.all([
-      fetch("style.css").then(r => r.text()),
-      fetch("script.js").then(r => r.text())
-    ]);
-    const html = "<!doctype html>\n" + document.documentElement.outerHTML
-      .replace('<link rel="stylesheet" href="style.css">', `<style>\n${css}\n</style>`)
-      .replace('<script src="script.js"></script>', `<script>\n${js}\n</script>`);
-    const blob = new Blob([html], { type: "text/html" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "nosso-primeiro-ano.html";
-    link.click();
-    URL.revokeObjectURL(link.href);
-  } catch (erro) {
-    alert("Não consegui gerar o arquivo. Abra a página por um servidor local ou guarde a pasta inteira (index.html, style.css, script.js, fotos e música).");
-  }
-}
